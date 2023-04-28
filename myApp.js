@@ -51,19 +51,32 @@ function echoHandlerMiddleware(req, _, next) {
   next();
 }
 
-// chain nameHandlerMiddleware to create a name server on /name route for both GET and POST requests
-app
-  .route('/name')
-  .get(nameHandlerMiddleware, (req, res) => {
-    res.send({ name: req.name });
-  })
-  .post(
-    bodyParser.urlencoded({ extended: false }),
-    nameHandlerMiddleware,
-    (req, res) => {
-      res.send({ name: req.name });
-    }
-  );
+// mount body-parser middleware to parse POST request body
+app.use('/name', bodyParser.urlencoded({ extended: false }));
+
+// chain nameHandlerMiddleware to create a name server on /name route for GET requests
+app.get('/name', nameHandlerMiddleware, (req, res) => {
+  res.send({ name: req.name });
+});
+
+// chain nameHandlerMiddleware to create a name server on /name route for POST requests
+app.post('/name', nameHandlerMiddleware, (req, res) => {
+  res.send({ name: req.name });
+});
+
+// clean version of chain nameHandlerMiddleware to create a name server on /name route for both GET and POST requests
+// app
+//   .route('/name')
+//   .get(nameHandlerMiddleware, (req, res) => {
+//     res.send({ name: req.name });
+//   })
+//   .post(
+//     bodyParser.urlencoded({ extended: false }),
+//     nameHandlerMiddleware,
+//     (req, res) => {
+//       res.send({ name: req.name });
+//     }
+//   );
 
 // middleware to create a name server
 function nameHandlerMiddleware(req, _, next) {
