@@ -50,13 +50,15 @@ function echoHandlerMiddleware(req, _, next) {
   next();
 }
 
-// chain nameHandlerMiddleware to create a name server on /name route
-// app.get('/name', nameHandlerMiddleware, (req, res) => {
-//   res.send({ name: req.name });
-// });
-
-// chain nameHandlerMiddleware to create a name server on /name route
-app.route('/name').get(nameHandlerMiddleware).post(nameHandlerMiddleware);
+// chain nameHandlerMiddleware to create a name server on /name route for both GET and POST requests
+app
+  .route('/name')
+  .get(nameHandlerMiddleware, (req, res) => {
+    res.send({ name: req.name });
+  })
+  .post(nameHandlerMiddleware, (req, res) => {
+    res.send({ name: req.name });
+  });
 
 // middleware to create a name server
 function nameHandlerMiddleware(req, _, next) {
