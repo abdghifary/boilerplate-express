@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 
 // load environment variables
 dotenv.config();
@@ -56,13 +57,26 @@ app
   .get(nameHandlerMiddleware, (req, res) => {
     res.send({ name: req.name });
   })
-  .post(nameHandlerMiddleware, (req, res) => {
-    res.send({ name: req.name });
-  });
+  .post(
+    bodyParser.urlencoded({ extended: false }),
+    nameHandlerMiddleware,
+    (req, res) => {
+      res.send({ name: req.name });
+    }
+  );
 
 // middleware to create a name server
 function nameHandlerMiddleware(req, _, next) {
-  req.name = `${req.query.first} ${req.query.last}`;
+  const httpMethodHandler = {
+    POST: () => {
+      req.name = `${req.body.first} ${req.body.last}`;
+    },
+    GET: () => {
+      req.name = `${req.query.first} ${req.query.last}`;
+    },
+  };
+
+  httpMethodHandler[req.method]();
   next();
 }
 
