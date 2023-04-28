@@ -1,24 +1,43 @@
-require('dotenv').config();
-let express = require('express');
-let app = express();
+const express = require('express');
+const dotenv = require('dotenv');
 
-app.use(function (req, _, next) {
+// load environment variables
+dotenv.config();
+
+const app = express();
+
+// middleware to log request method, path, and ip address
+app.use((req, _, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
-app.get('/', function (_, res) {
+// serve an HTML file on root route
+app.get('/', (_, res) => {
   //   res.send('Hello Express');
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// serve static assets
 app.use('/public', express.static(__dirname + '/public'));
 
-app.get('/json', function (_, res) {
+// serve JSON on /json route
+app.get('/json', (_, res) => {
   process.env.MESSAGE_STYLE === 'uppercase'
     ? res.json({ message: 'HELLO JSON' })
     : res.json({ message: 'Hello json' });
 });
+
+// chain timeServerMiddleware to create a time server on /now route
+app.get('/now', timeServerMiddleware, (req, res) => {
+  res.send({ time: req.time });
+});
+
+// middleware to create a time server
+function timeServerMiddleware(req, _, next) {
+  req.time = new Date().toString();
+  next();
+}
 
 console.log('Hello World');
 
