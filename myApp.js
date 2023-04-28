@@ -39,6 +39,17 @@ function timeServerMiddleware(req, _, next) {
   next();
 }
 
+// chain echoHandlerMiddleware to create an echo server on /:word/echo route
+app.get('/:word/echo', echoHandlerMiddleware, (req, res) => {
+  res.send({ echo: req.echo });
+});
+
+// middleware to create an echo server
+function echoHandlerMiddleware(req, _, next) {
+  req.echo = req.params.word;
+  next();
+}
+
 console.log('Hello World');
 
 module.exports = app;
